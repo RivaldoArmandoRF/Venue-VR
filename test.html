@@ -1,0 +1,2470 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#05070c" />
+    <meta
+      name="description"
+      content="Media Pembelajaran 3D — base venue indoor futuristik versi beta untuk desktop, mobile, dan headset VR."
+    />
+    <title>Media Pembelajaran 3D — Beta Test</title>
+    <style>
+:root {
+  color-scheme: dark;
+  --ink: #05070c;
+  --panel: rgba(8, 13, 22, .78);
+  --panel-solid: #0a111d;
+  --line: rgba(111, 238, 255, .24);
+  --line-strong: rgba(111, 238, 255, .68);
+  --aqua: #6feeff;
+  --aqua-rgb: 111, 238, 255;
+  --violet: #8778ff;
+  --white: #edfaff;
+  --muted: #90a5b7;
+  --safe-top: max(22px, env(safe-area-inset-top));
+  --safe-right: max(22px, env(safe-area-inset-right));
+  --safe-bottom: max(20px, env(safe-area-inset-bottom));
+  --safe-left: max(22px, env(safe-area-inset-left));
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--white);
+}
+
+body {
+  min-width: 320px;
+  font-size: 1rem;
+  line-height: 1.5;
+  overscroll-behavior: none;
+}
+
+button,
+dialog {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--aqua);
+  outline-offset: 3px;
+}
+
+#experience,
+#scene,
+#scene canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#scene canvas {
+  display: block;
+  outline: none;
+  touch-action: none;
+}
+
+.vignette,
+.scanlines {
+  position: fixed;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.vignette {
+  background:
+    linear-gradient(180deg, rgba(0, 4, 10, .32), transparent 28%, transparent 68%, rgba(0, 3, 9, .55)),
+    radial-gradient(circle at 50% 48%, transparent 48%, rgba(0, 3, 9, .54) 115%);
+}
+
+.scanlines {
+  opacity: .055;
+  background: repeating-linear-gradient(180deg, transparent 0 3px, rgba(115, 238, 255, .23) 4px);
+}
+
+.topbar {
+  position: fixed;
+  z-index: 10;
+  top: var(--safe-top);
+  right: var(--safe-right);
+  left: var(--safe-left);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  pointer-events: none;
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+.brand-panel,
+.system-panel,
+.mode-button,
+.icon-button,
+#vr-entry {
+  border: 1px solid var(--line) !important;
+  background: var(--panel) !important;
+  backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 24px rgba(var(--aqua-rgb), .025), 0 14px 38px rgba(0, 0, 0, .24);
+}
+
+.brand-panel {
+  width: max-content;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 8px 22px 8px 10px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+}
+
+.brand-panel div,
+.system-panel div {
+  display: grid;
+  line-height: 1.15;
+}
+
+.brand-panel strong {
+  max-width: 260px;
+  font-family: "Arial Black", Inter, sans-serif;
+  font-size: .92rem;
+  line-height: 1.16;
+  letter-spacing: .12em;
+}
+
+.brand-panel small,
+.system-panel small,
+.location-panel small,
+.mode-button span {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 650;
+  letter-spacing: .12em;
+}
+
+.brand-mark {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  clip-path: polygon(22% 0, 78% 0, 100% 22%, 100% 78%, 78% 100%, 22% 100%, 0 78%, 0 22%);
+}
+
+.brand-mark::before,
+.brand-mark::after,
+.brand-mark i {
+  content: "";
+  position: absolute;
+  background: var(--aqua);
+  box-shadow: 0 0 12px rgba(var(--aqua-rgb), .72);
+}
+
+.brand-mark::before {
+  width: 17px;
+  height: 2px;
+  transform: rotate(45deg);
+}
+
+.brand-mark::after {
+  width: 17px;
+  height: 2px;
+  transform: rotate(-45deg);
+}
+
+.brand-mark i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+}
+
+.brand-mark i:nth-child(1) { top: 7px; left: 19px; }
+.brand-mark i:nth-child(2) { right: 7px; bottom: 9px; }
+.brand-mark i:nth-child(3) { bottom: 9px; left: 7px; }
+
+.system-panel {
+  justify-self: center;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 19px;
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, calc(100% - 8px) 100%, 8px 100%, 0 10px);
+}
+
+.system-panel strong {
+  margin-top: 3px;
+  font-size: .8rem;
+  letter-spacing: .14em;
+}
+
+.system-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--aqua);
+  box-shadow: 0 0 0 5px rgba(var(--aqua-rgb), .1), 0 0 16px var(--aqua);
+  animation: pulse 2.2s ease-in-out infinite;
+}
+
+.quick-actions {
+  justify-self: end;
+  display: flex;
+  align-items: stretch;
+  gap: 7px;
+  pointer-events: auto;
+}
+
+.mode-button,
+.icon-button,
+#vr-entry {
+  min-height: 48px !important;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, color .2s ease, transform .2s ease;
+}
+
+.mode-button:hover,
+.icon-button:hover,
+#vr-entry:hover {
+  border-color: var(--line-strong) !important;
+  background: rgba(var(--aqua-rgb), .1) !important;
+}
+
+.mode-button:active,
+.icon-button:active,
+#vr-entry:active {
+  transform: translateY(1px);
+}
+
+.mode-button {
+  min-width: 126px;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  padding: 6px 16px;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+}
+
+.mode-button b {
+  margin-top: 2px;
+  color: var(--aqua);
+  font-size: .8rem;
+  letter-spacing: .18em;
+}
+
+.icon-button {
+  width: 48px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.icon-button svg {
+  width: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#xr-slot {
+  display: flex;
+}
+
+#vr-entry {
+  position: static !important;
+  width: auto !important;
+  min-width: 92px !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  border-radius: 0 !important;
+  color: var(--aqua) !important;
+  font-size: .75rem !important;
+  font-weight: 750 !important;
+  letter-spacing: .08em !important;
+  opacity: 1 !important;
+}
+
+.location-panel {
+  position: fixed;
+  z-index: 8;
+  left: var(--safe-left);
+  bottom: var(--safe-bottom);
+  min-width: 265px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 13px 20px 13px 12px;
+  border-left: 2px solid var(--aqua);
+  background: linear-gradient(90deg, rgba(5, 12, 21, .9), rgba(5, 12, 21, .52));
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  pointer-events: none;
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+.location-index {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  color: var(--aqua);
+  font-family: "Arial Black", Inter, sans-serif;
+  font-size: .9rem;
+}
+
+.location-panel div {
+  display: grid;
+}
+
+.location-panel strong {
+  margin-top: 2px;
+  font-size: .85rem;
+  letter-spacing: .12em;
+}
+
+.location-panel div > span {
+  margin-top: 4px;
+  color: var(--muted);
+  font: 500 .75rem/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.reticle {
+  position: fixed;
+  z-index: 7;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  translate: -50% -50%;
+  opacity: .78;
+  pointer-events: none;
+}
+
+.reticle i {
+  width: 7px;
+  height: 1px;
+  background: var(--aqua);
+}
+
+.reticle span {
+  width: 4px;
+  height: 4px;
+  border: 1px solid var(--aqua);
+  transform: rotate(45deg);
+  box-shadow: 0 0 8px rgba(var(--aqua-rgb), .8);
+}
+
+.desktop-hint {
+  position: fixed;
+  z-index: 8;
+  right: var(--safe-right);
+  bottom: var(--safe-bottom);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  background: rgba(5, 10, 18, .7);
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 650;
+  letter-spacing: .06em;
+  pointer-events: none;
+  transition: opacity .35s ease, transform .35s ease;
+}
+
+.desktop-hint > i {
+  width: 1px;
+  height: 17px;
+  background: rgba(255, 255, 255, .12);
+}
+
+kbd {
+  min-width: 24px;
+  display: inline-grid;
+  place-items: center;
+  margin: 0 2px;
+  padding: 2px 5px;
+  border: 1px solid rgba(var(--aqua-rgb), .3);
+  border-bottom-color: rgba(var(--aqua-rgb), .58);
+  background: rgba(var(--aqua-rgb), .06);
+  color: var(--white);
+  font: 650 .75rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.entry-screen {
+  position: fixed;
+  z-index: 30;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 76% 48%, rgba(58, 117, 148, .2), transparent 31%),
+    linear-gradient(115deg, rgba(3, 6, 11, .97) 0 50%, rgba(4, 10, 17, .86) 69%, rgba(2, 5, 10, .94) 100%);
+  transition: opacity .72s ease, visibility .72s ease;
+}
+
+.entry-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.entry-grid {
+  position: absolute;
+  inset: 0;
+  opacity: .12;
+  background-image:
+    linear-gradient(rgba(var(--aqua-rgb), .28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--aqua-rgb), .28) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(90deg, transparent 2%, #000 42%, #000 100%);
+  transform: perspective(600px) rotateX(57deg) scale(1.35) translateY(18%);
+  transform-origin: center bottom;
+}
+
+.entry-orbit {
+  position: absolute;
+  top: 50%;
+  right: 10vw;
+  width: min(39vw, 560px);
+  aspect-ratio: 1;
+  translate: 0 -50%;
+  border: 1px solid rgba(var(--aqua-rgb), .2);
+  border-radius: 50%;
+  animation: orbit 22s linear infinite;
+}
+
+.entry-orbit::before,
+.entry-orbit::after,
+.entry-orbit i {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 1px solid rgba(var(--aqua-rgb), .2);
+  transform: rotate(45deg);
+}
+
+.entry-orbit::after {
+  inset: 28%;
+  border-color: rgba(135, 120, 255, .4);
+}
+
+.entry-orbit i {
+  inset: 42%;
+  border-color: var(--aqua);
+  box-shadow: 0 0 40px rgba(var(--aqua-rgb), .22);
+}
+
+.entry-orbit i:nth-child(2) {
+  inset: 5% 49%;
+  border: 0;
+  background: linear-gradient(transparent, var(--aqua), transparent);
+  transform: rotate(28deg);
+}
+
+.entry-orbit i:nth-child(3) {
+  inset: 49% 5%;
+  border: 0;
+  background: linear-gradient(90deg, transparent, rgba(135, 120, 255, .8), transparent);
+  transform: rotate(-18deg);
+}
+
+.entry-corners {
+  position: absolute;
+  inset: 24px;
+  pointer-events: none;
+}
+
+.entry-corners i {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-color: rgba(var(--aqua-rgb), .35);
+  border-style: solid;
+}
+
+.entry-corners i:nth-child(1) { top: 0; left: 0; border-width: 1px 0 0 1px; }
+.entry-corners i:nth-child(2) { top: 0; right: 0; border-width: 1px 1px 0 0; }
+.entry-corners i:nth-child(3) { right: 0; bottom: 0; border-width: 0 1px 1px 0; }
+.entry-corners i:nth-child(4) { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+
+.entry-content {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: clamp(32px, 8vw, 138px);
+  width: min(560px, calc(100vw - 64px));
+  translate: 0 -50%;
+}
+
+.entry-kicker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 750;
+  letter-spacing: .18em;
+}
+
+.entry-kicker span {
+  padding: 5px 8px;
+  border: 1px solid var(--line-strong);
+  color: var(--aqua);
+}
+
+.entry-content h1 {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+  font-family: "Arial Black", Inter, sans-serif;
+  font-weight: 900;
+  text-shadow: 0 0 45px rgba(var(--aqua-rgb), .13);
+}
+
+.entry-content h1 span {
+  font-size: clamp(4.6rem, 8.5vw, 7.8rem);
+  line-height: .78;
+  letter-spacing: -.07em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--aqua);
+  text-shadow: 0 0 28px rgba(var(--aqua-rgb), .28);
+}
+
+.entry-content h1 strong {
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  line-height: .95;
+  letter-spacing: -.055em;
+}
+
+.entry-subtitle {
+  margin: 22px 0 0;
+  color: var(--aqua);
+  font-size: 1rem;
+  font-weight: 750;
+  letter-spacing: .34em;
+}
+
+.entry-description {
+  max-width: 540px;
+  margin: 22px 0 0;
+  color: #b6c7d5;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 25px 0 21px;
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+}
+
+.entry-meta i {
+  width: 24px;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+.enter-button {
+  position: relative;
+  width: min(100%, 390px);
+  min-height: 64px;
+  display: grid;
+  align-items: center;
+  padding: 0 24px;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background: rgba(var(--aqua-rgb), .045);
+  color: var(--white);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  cursor: pointer;
+}
+
+.enter-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(var(--aqua-rgb), .2), transparent);
+  translate: -120% 0;
+  transition: translate .5s ease;
+}
+
+.enter-button:not(:disabled):hover::before {
+  translate: 120% 0;
+}
+
+.enter-button:disabled {
+  cursor: wait;
+}
+
+.enter-button span,
+.enter-button b {
+  grid-area: 1 / 1;
+  font-size: .8rem;
+  letter-spacing: .15em;
+  transition: opacity .3s ease, translate .3s ease;
+}
+
+.enter-button b {
+  display: flex;
+  justify-content: space-between;
+  opacity: 0;
+  translate: 0 8px;
+}
+
+.enter-button b i {
+  color: var(--aqua);
+  font-size: 1.1rem;
+  font-style: normal;
+}
+
+.enter-button:not(:disabled) span {
+  opacity: 0;
+  translate: 0 -8px;
+}
+
+.enter-button:not(:disabled) b {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.load-track {
+  width: min(100%, 390px);
+  height: 2px;
+  margin-top: 13px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .08);
+}
+
+.load-track span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--aqua);
+  box-shadow: 0 0 14px var(--aqua);
+  transition: width .4s ease;
+}
+
+.load-note {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: .75rem;
+}
+
+.entry-code {
+  position: absolute;
+  bottom: 44px;
+  color: rgba(176, 207, 221, .45);
+  font: 500 .75rem/1.8 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: .1em;
+}
+
+.entry-code-left { left: 48px; }
+.entry-code-right { right: 48px; text-align: right; }
+
+.help-dialog {
+  width: min(900px, calc(100vw - 34px));
+  max-height: calc(100vh - 34px);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: rgba(7, 13, 22, .96);
+  color: var(--white);
+  box-shadow: 0 36px 110px rgba(0, 0, 0, .7);
+}
+
+.help-dialog::backdrop {
+  background: rgba(0, 3, 8, .74);
+  backdrop-filter: blur(8px);
+}
+
+.dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 21px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dialog-heading small {
+  color: var(--aqua);
+  font-size: .75rem;
+  font-weight: 750;
+  letter-spacing: .16em;
+}
+
+.dialog-heading h2 {
+  margin: 5px 0 0;
+  font-size: 1.5rem;
+}
+
+.dialog-heading button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.control-grid article {
+  min-height: 205px;
+  padding: 26px;
+  border-right: 1px solid var(--line);
+}
+
+.control-grid article:last-child {
+  border-right: 0;
+}
+
+.control-grid article > b {
+  color: var(--aqua);
+  font: 700 .78rem/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.control-grid h3 {
+  margin: 26px 0 10px;
+  font-size: 1.05rem;
+}
+
+.control-grid p,
+.dialog-note {
+  color: #9fb2c1;
+  font-size: .92rem;
+  line-height: 1.65;
+}
+
+.dialog-note {
+  margin: 0;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+}
+
+.interaction-prompt {
+  position: fixed;
+  z-index: 16;
+  left: 50%;
+  bottom: 84px;
+  opacity: 0;
+  translate: -50% 12px;
+  pointer-events: none;
+  transition: opacity .22s ease, translate .22s ease;
+}
+
+.interaction-prompt.active {
+  opacity: 1;
+  translate: -50% 0;
+  pointer-events: auto;
+}
+
+.interaction-prompt button {
+  min-width: 250px;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  padding: 9px 18px;
+  border: 1px solid rgba(var(--aqua-rgb), .55);
+  background:
+    linear-gradient(105deg, rgba(var(--aqua-rgb), .14), transparent 46%),
+    rgba(4, 10, 18, .9);
+  color: var(--white);
+  clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 13px 100%, 0 calc(100% - 13px));
+  box-shadow: 0 0 34px rgba(var(--aqua-rgb), .12), inset 0 0 22px rgba(var(--aqua-rgb), .04);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.interaction-prompt button:hover,
+.interaction-prompt button:focus-visible {
+  border-color: var(--aqua);
+  background-color: rgba(var(--aqua-rgb), .12);
+  outline: none;
+}
+
+.interaction-prompt kbd {
+  width: 35px;
+  height: 35px;
+  margin: 0;
+  color: var(--aqua);
+  font-size: .88rem;
+}
+
+.interaction-prompt span {
+  display: grid;
+  gap: 3px;
+  text-align: left;
+}
+
+.interaction-prompt small {
+  color: var(--muted);
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+}
+
+.interaction-prompt strong {
+  color: var(--aqua);
+  font-size: .75rem;
+  letter-spacing: .09em;
+}
+
+.toast {
+  position: fixed;
+  z-index: 50;
+  left: 50%;
+  bottom: 86px;
+  padding: 10px 16px;
+  border: 1px solid var(--line-strong);
+  background: rgba(5, 11, 19, .92);
+  color: var(--aqua);
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  opacity: 0;
+  translate: -50% 10px;
+  pointer-events: none;
+  transition: opacity .25s ease, translate .25s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+.interaction-prompt.active ~ .toast {
+  bottom: 154px;
+}
+
+.mobile-controls {
+  display: none;
+}
+
+body.pointer-active .topbar,
+body.pointer-active .location-panel,
+body.pointer-active .desktop-hint {
+  opacity: .68;
+}
+
+body.xr-active .topbar,
+body.xr-active .location-panel,
+body.xr-active .desktop-hint,
+body.xr-active .interaction-prompt,
+body.xr-active .reticle,
+body.xr-active .vignette,
+body.xr-active .scanlines {
+  display: none;
+}
+
+@keyframes pulse {
+  50% { opacity: .42; box-shadow: 0 0 0 2px rgba(var(--aqua-rgb), .06), 0 0 7px var(--aqua); }
+}
+
+@keyframes orbit {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1040px) {
+  .system-panel { display: none; }
+  .topbar { grid-template-columns: 1fr auto; }
+  .desktop-hint { display: none; }
+  .entry-orbit { right: -7vw; opacity: .65; }
+}
+
+@media (max-width: 720px), (pointer: coarse) {
+  :root {
+    --safe-top: max(12px, env(safe-area-inset-top));
+    --safe-right: max(12px, env(safe-area-inset-right));
+    --safe-bottom: max(12px, env(safe-area-inset-bottom));
+    --safe-left: max(12px, env(safe-area-inset-left));
+  }
+
+  .scanlines { display: none; }
+  .topbar { align-items: start; }
+  .brand-panel { min-height: 46px; padding: 6px 12px 6px 6px; gap: 8px; }
+  .brand-mark { width: 34px; height: 34px; }
+  .brand-panel strong { max-width: 125px; font-size: .75rem; letter-spacing: .055em; }
+  .brand-panel small { display: none; }
+  .mode-button { min-width: 78px; padding: 5px 9px; }
+  .mode-button span { display: none; }
+  .icon-button,
+  .mode-button,
+  #vr-entry { min-height: 42px !important; }
+  .icon-button { width: 42px; }
+  #vr-entry { min-width: 72px !important; padding: 0 9px !important; }
+  .quick-actions { gap: 4px; }
+  .quick-actions #fullscreen-button { display: none; }
+  .reticle { display: none; }
+  .location-panel { min-width: 230px; padding: 9px 14px 9px 9px; }
+  .location-index { width: 36px; height: 36px; }
+  body.launched:not(.xr-active) .mobile-controls { display: block; }
+
+  .joystick {
+    position: fixed;
+    z-index: 12;
+    left: max(22px, env(safe-area-inset-left));
+    bottom: max(28px, env(safe-area-inset-bottom));
+    width: 112px;
+    height: 112px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(var(--aqua-rgb), .25);
+    border-radius: 50%;
+    background: rgba(4, 10, 18, .42);
+    box-shadow: inset 0 0 24px rgba(var(--aqua-rgb), .035);
+    touch-action: none;
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+  }
+
+  .joystick.active {
+    border-color: rgba(var(--aqua-rgb), .72);
+    background: rgba(var(--aqua-rgb), .09);
+    box-shadow: 0 0 28px rgba(var(--aqua-rgb), .13), inset 0 0 28px rgba(var(--aqua-rgb), .08);
+  }
+
+  .joystick-grid {
+    position: absolute;
+    inset: 17px;
+    border: 1px solid rgba(var(--aqua-rgb), .15);
+    border-radius: 50%;
+  }
+
+  .joystick-grid::before,
+  .joystick-grid::after {
+    content: "";
+    position: absolute;
+    background: rgba(var(--aqua-rgb), .12);
+  }
+
+  .joystick-grid::before { top: 50%; left: 0; width: 100%; height: 1px; }
+  .joystick-grid::after { top: 0; left: 50%; width: 1px; height: 100%; }
+
+  .joystick-knob {
+    position: relative;
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(var(--aqua-rgb), .75);
+    border-radius: 50%;
+    background: rgba(var(--aqua-rgb), .18);
+    box-shadow: 0 0 22px rgba(var(--aqua-rgb), .16);
+    transition: box-shadow .18s ease, background .18s ease;
+  }
+
+  .joystick.active .joystick-knob {
+    background: rgba(var(--aqua-rgb), .34);
+    box-shadow: 0 0 28px rgba(var(--aqua-rgb), .34);
+  }
+
+  .joystick small {
+    position: absolute;
+    top: calc(100% + 7px);
+    color: var(--muted);
+    font-size: .75rem;
+    letter-spacing: .12em;
+  }
+
+  .look-zone {
+    position: fixed;
+    z-index: 11;
+    top: 86px;
+    right: 0;
+    bottom: 0;
+    width: 54vw;
+    touch-action: none;
+  }
+
+  .look-zone span {
+    position: absolute;
+    right: 22px;
+    bottom: max(48px, env(safe-area-inset-bottom));
+    color: rgba(189, 221, 232, .55);
+    font-size: .75rem;
+    letter-spacing: .1em;
+  }
+
+  .interaction-prompt {
+    left: auto;
+    right: max(22px, env(safe-area-inset-right));
+    bottom: max(26px, env(safe-area-inset-bottom));
+    translate: 0 12px;
+  }
+
+  .interaction-prompt.active {
+    translate: 0 0;
+  }
+
+  .interaction-prompt button {
+    width: 104px;
+    min-width: 104px;
+    height: 104px;
+    min-height: 104px;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px 8px;
+    border-radius: 50%;
+    clip-path: none;
+  }
+
+  .interaction-prompt kbd {
+    display: none;
+  }
+
+  .interaction-prompt span {
+    gap: 5px;
+    text-align: center;
+  }
+
+  .interaction-prompt small {
+    font-size: .52rem;
+    line-height: 1.3;
+  }
+
+  .interaction-prompt strong {
+    max-width: 88px;
+    font-size: .64rem;
+    line-height: 1.35;
+  }
+
+  .interaction-prompt.active ~ .toast {
+    bottom: max(148px, calc(env(safe-area-inset-bottom) + 136px));
+  }
+
+  .entry-screen {
+    background: linear-gradient(135deg, rgba(3, 7, 13, .98), rgba(5, 13, 23, .95));
+  }
+
+  .entry-corners { inset: 12px; }
+  .entry-orbit { width: 92vw; right: -47vw; opacity: .28; }
+  .entry-content { left: 24px; width: calc(100vw - 48px); }
+  .entry-content h1 span { font-size: clamp(3.8rem, 18vw, 5.6rem); }
+  .entry-content h1 strong { font-size: clamp(1.65rem, 8.2vw, 2.7rem); }
+  .entry-subtitle { font-size: .82rem; letter-spacing: .2em; }
+  .entry-description { max-width: 88%; font-size: .95rem; }
+  .entry-meta { gap: 7px; }
+  .entry-meta i { width: 12px; }
+  .entry-code { display: none; }
+  .control-grid { grid-template-columns: 1fr; max-height: 52vh; overflow-y: auto; }
+  .control-grid article { min-height: 0; padding: 19px 22px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .control-grid article:last-child { border-bottom: 0; }
+  .control-grid h3 { margin-top: 12px; }
+  .help-dialog { overflow-y: auto; }
+}
+
+@media (max-width: 430px) {
+  .brand-panel { padding-right: 8px; }
+  .brand-panel strong { max-width: 108px; font-size: .7rem; letter-spacing: .035em; }
+  .icon-button:nth-of-type(2) { display: none; }
+  .location-panel { transform: scale(.9); transform-origin: left bottom; }
+  .entry-kicker { font-size: .75rem; }
+  .entry-description { max-width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main id="experience" aria-label="Media Pembelajaran 3D Beta Test">
+      <div id="scene" aria-hidden="true"></div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="scanlines" aria-hidden="true"></div>
+
+      <header class="topbar" aria-label="Informasi dan kontrol venue">
+        <div class="brand-panel">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div>
+            <strong>MEDIA PEMBELAJARAN</strong>
+            <small>3D VENUE // BETA TEST</small>
+          </div>
+        </div>
+
+        <div class="system-panel">
+          <span class="system-pulse" aria-hidden="true"></span>
+          <div><small>VENUE STATUS</small><strong id="system-label">SYSTEM READY</strong></div>
+        </div>
+
+        <nav class="quick-actions" aria-label="Kontrol cepat">
+          <button class="mode-button" id="lighting-button" type="button" aria-label="Ganti mode pencahayaan">
+            <span>LIGHT MODE</span><b id="lighting-name">AQUA</b>
+          </button>
+          <button class="icon-button" id="reset-button" type="button" aria-label="Kembali ke titik awal">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.7 8.5A8 8 0 1 1 4 15m.7-6.5V4m0 4.5h4.5" /></svg>
+          </button>
+          <button class="icon-button" id="fullscreen-button" type="button" aria-label="Aktifkan layar penuh">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>
+          </button>
+          <button class="icon-button" id="help-button" type="button" aria-label="Buka panduan kontrol">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.8 9a2.4 2.4 0 1 1 3.1 2.3c-.8.3-.9.9-.9 1.7m0 3.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+          </button>
+          <span id="xr-slot"></span>
+        </nav>
+      </header>
+
+      <aside class="location-panel" aria-label="Lokasi saat ini">
+        <span class="location-index" id="zone-index">01</span>
+        <div>
+          <small>CURRENT SECTOR</small>
+          <strong id="zone-name">ARRIVAL DECK</strong>
+          <span id="coordinates">X +00.0 · Z +58.0</span>
+        </div>
+      </aside>
+
+      <div class="reticle" aria-hidden="true"><i></i><span></span><i></i></div>
+
+      <div class="desktop-hint" aria-hidden="true">
+        <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> BERGERAK</span>
+        <i></i>
+        <span>MOUSE MELIHAT</span>
+        <i></i>
+        <span><kbd>SHIFT</kbd> BERLARI</span>
+        <i></i>
+        <span><kbd>E</kbd> INTERAKSI</span>
+      </div>
+
+      <div class="mobile-controls" aria-hidden="true">
+        <div class="joystick" id="joystick">
+          <span class="joystick-grid"></span>
+          <span class="joystick-knob" id="joystick-knob"></span>
+          <small>ANALOG GERAK</small>
+        </div>
+        <div class="look-zone" id="look-zone"><span>SWIPE TO LOOK</span></div>
+      </div>
+
+      <div class="interaction-prompt" id="interaction-prompt" aria-live="polite" aria-hidden="true">
+        <button id="interact-button" type="button" aria-label="Aktifkan objek terdekat" disabled>
+          <kbd>E</kbd>
+          <span><small>OBJEK TERDETEKSI</small><strong id="interaction-label">INTERAKSI</strong></span>
+        </button>
+      </div>
+
+      <section class="entry-screen" id="entry-screen" aria-labelledby="entry-title">
+        <div class="entry-grid" aria-hidden="true"></div>
+        <div class="entry-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="entry-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+        <div class="entry-content">
+          <p class="entry-kicker"><span>BETA TEST</span> IMMERSIVE LEARNING VENUE</p>
+          <h1 id="entry-title"><span>MEDIA</span><strong>PEMBELAJARAN</strong></h1>
+          <p class="entry-subtitle">RUANG 3D FUTURISTIK</p>
+          <p class="entry-description">
+            Media Pembelajaran 3D versi beta, dirancang sebagai fondasi ruang belajar interaktif dan pengalaman virtual berikutnya.
+          </p>
+          <div class="entry-meta" aria-label="Perangkat yang didukung">
+            <span>DESKTOP</span><i></i><span>MOBILE</span><i></i><span>WEBXR</span>
+          </div>
+          <button class="enter-button" id="enter-button" type="button" disabled>
+            <span id="enter-label">INITIALIZING VENUE</span>
+            <b>MASUK RUANG 3D <i aria-hidden="true">↗</i></b>
+          </button>
+          <div class="load-track" aria-hidden="true"><span id="load-fill"></span></div>
+          <p class="load-note" id="load-note" role="status" aria-live="polite">Membangun struktur venue…</p>
+        </div>
+
+        <div class="entry-code entry-code-left" aria-hidden="true">SECTOR 01 / 07<br />LAT 00.000<br />SYSTEM ONLINE</div>
+        <div class="entry-code entry-code-right" aria-hidden="true">INDOOR ENVIRONMENT<br />REALTIME 3D<br />XR COMPATIBLE</div>
+      </section>
+
+      <dialog class="help-dialog" id="help-dialog">
+        <div class="dialog-heading">
+          <div><small>MEDIA PEMBELAJARAN // BETA</small><h2>Panduan Kontrol</h2></div>
+          <button id="close-help" type="button" aria-label="Tutup panduan">×</button>
+        </div>
+        <div class="control-grid">
+          <article><b>01</b><h3>Desktop</h3><p><kbd>W</kbd> maju sesuai arah pandang, <kbd>S</kbd> mundur, <kbd>A D</kbd> menyamping, <kbd>Shift</kbd> berlari, dan <kbd>E</kbd> mengaktifkan objek.</p></article>
+          <article><b>02</b><h3>Mobile</h3><p>Gunakan analog kiri untuk bergerak, usap sisi kanan untuk melihat, lalu ketuk tombol interaksi saat muncul.</p></article>
+          <article><b>03</b><h3>Virtual Reality</h3><p>Gunakan thumbstick untuk bergerak. Trigger mengaktifkan objek terdekat, atau teleportasi saat tidak ada objek aktif.</p></article>
+        </div>
+        <p class="dialog-note">Mode VR membutuhkan browser WebXR, headset kompatibel, serta koneksi HTTPS atau localhost.</p>
+      </dialog>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+
+    <noscript>Aktifkan JavaScript untuk membuka Media Pembelajaran 3D.</noscript>
+    <script type="module">
+import * as THREE from "three";
+import { VRButton } from "three/addons/webxr/VRButton.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const $ = (selector) => document.querySelector(selector);
+
+const ui = {
+  scene: $("#scene"),
+  entry: $("#entry-screen"),
+  enter: $("#enter-button"),
+  enterLabel: $("#enter-label"),
+  loadFill: $("#load-fill"),
+  loadNote: $("#load-note"),
+  systemLabel: $("#system-label"),
+  lightingButton: $("#lighting-button"),
+  lightingName: $("#lighting-name"),
+  resetButton: $("#reset-button"),
+  fullscreenButton: $("#fullscreen-button"),
+  helpButton: $("#help-button"),
+  helpDialog: $("#help-dialog"),
+  closeHelp: $("#close-help"),
+  zoneIndex: $("#zone-index"),
+  zoneName: $("#zone-name"),
+  coordinates: $("#coordinates"),
+  joystick: $("#joystick"),
+  joystickKnob: $("#joystick-knob"),
+  lookZone: $("#look-zone"),
+  interactionPrompt: $("#interaction-prompt"),
+  interactButton: $("#interact-button"),
+  interactionLabel: $("#interaction-label"),
+  toast: $("#toast"),
+  xrSlot: $("#xr-slot"),
+};
+
+const LIGHT_MODES = [
+  {
+    name: "AQUA",
+    accent: 0x6feeff,
+    css: "#6feeff",
+    fog: 0x07121c,
+    background: 0x03070d,
+    ambient: 0.42,
+    key: 2.15,
+    practical: 1.8,
+    glow: 1,
+  },
+  {
+    name: "VIOLET",
+    accent: 0x9a82ff,
+    css: "#9a82ff",
+    fog: 0x100b20,
+    background: 0x05040c,
+    ambient: 0.36,
+    key: 1.8,
+    practical: 1.55,
+    glow: 1.12,
+  },
+  {
+    name: "ALERT",
+    accent: 0xff516d,
+    css: "#ff516d",
+    fog: 0x19090e,
+    background: 0x080307,
+    ambient: 0.28,
+    key: 1.35,
+    practical: 1.15,
+    glow: 1.26,
+  },
+];
+
+const SPAWN = new THREE.Vector3(0, 0, 59);
+const EYE_HEIGHT = 1.7;
+const PLAYER_RADIUS = 0.4;
+const WORLD_LIMITS = { minX: -32.4, maxX: 32.4, minZ: -77.7, maxZ: 68.2 };
+const STAGE_CENTER_Z = -7;
+const isCoarsePointer = matchMedia("(pointer: coarse)").matches;
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const lowPowerDevice = Number(navigator.deviceMemory || 8) <= 4 || Number(navigator.hardwareConcurrency || 8) <= 4;
+const pixelRatioLimit = isCoarsePointer ? 1 : lowPowerDevice ? 1.05 : 1.25;
+const enableShadows = !isCoarsePointer && !lowPowerDevice;
+
+let scene;
+let camera;
+let renderer;
+let rig;
+let clock;
+let mats;
+let keyLight;
+let ambientLight;
+let hemisphereLight;
+let modeIndex = 0;
+let launched = false;
+let yaw = 0;
+let pitch = -0.035;
+let toastTimer;
+let locationTimer = 0;
+let interactionTimer = 0;
+let walkPhase = 0;
+let snapReady = true;
+let focusedInteractable = null;
+
+const keys = new Set();
+const velocity = new THREE.Vector3();
+const desiredVelocity = new THREE.Vector3();
+const forwardVector = new THREE.Vector3();
+const rightVector = new THREE.Vector3();
+const movementVector = new THREE.Vector3();
+const tempVector = new THREE.Vector3();
+const tempVector2 = new THREE.Vector3();
+const tempMatrix = new THREE.Matrix4();
+const upVector = new THREE.Vector3(0, 1, 0);
+const raycaster = new THREE.Raycaster();
+const walkableSurfaces = [];
+const dynamicAccentMaterials = [];
+const dynamicFlatMaterials = [];
+const practicalLights = [];
+const interactables = [];
+
+const touchState = {
+  joystickId: null,
+  lookId: null,
+  joyX: 0,
+  joyY: 0,
+  lookX: 0,
+  lookY: 0,
+};
+
+function setLoad(percent, message) {
+  ui.loadFill.style.width = `${percent}%`;
+  ui.loadNote.textContent = message;
+}
+
+function hexToRgb(hex) {
+  const value = Number.parseInt(hex.slice(1), 16);
+  return `${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}`;
+}
+
+function showToast(message) {
+  clearTimeout(toastTimer);
+  ui.toast.textContent = message;
+  ui.toast.classList.add("visible");
+  toastTimer = setTimeout(() => ui.toast.classList.remove("visible"), 2100);
+}
+
+function standardMaterial(color, roughness = 0.72, metalness = 0.18, options = {}) {
+  return new THREE.MeshStandardMaterial({ color, roughness, metalness, ...options });
+}
+
+function accentMaterial(intensity = 2.2, options = {}) {
+  const color = LIGHT_MODES[modeIndex].accent;
+  const value = new THREE.MeshStandardMaterial({
+    color,
+    emissive: color,
+    emissiveIntensity: intensity,
+    roughness: 0.3,
+    metalness: 0.28,
+    ...options,
+  });
+  dynamicAccentMaterials.push({ material: value, intensity });
+  return value;
+}
+
+function accentBasicMaterial(options = {}) {
+  const value = new THREE.MeshBasicMaterial({
+    color: LIGHT_MODES[modeIndex].accent,
+    toneMapped: false,
+    ...options,
+  });
+  dynamicFlatMaterials.push(value);
+  return value;
+}
+
+function addBox(parent, size, position, material, rotation = [0, 0, 0], castShadow = false) {
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(...size), material);
+  mesh.position.set(...position);
+  mesh.rotation.set(...rotation);
+  mesh.castShadow = castShadow;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+function addCylinder(parent, radius, height, position, material, segments = 20, rotation = [0, 0, 0], castShadow = false) {
+  const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius[0], radius[1], height, segments), material);
+  mesh.position.set(...position);
+  mesh.rotation.set(...rotation);
+  mesh.castShadow = castShadow;
+  mesh.receiveShadow = true;
+  parent.add(mesh);
+  return mesh;
+}
+
+function makeFloorTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+  const context = canvas.getContext("2d");
+  context.fillStyle = "#101721";
+  context.fillRect(0, 0, 512, 512);
+  context.strokeStyle = "rgba(138,175,194,.18)";
+  context.lineWidth = 2;
+  for (let position = 0; position <= 512; position += 64) {
+    context.beginPath();
+    context.moveTo(position, 0);
+    context.lineTo(position, 512);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(0, position);
+    context.lineTo(512, position);
+    context.stroke();
+  }
+  context.strokeStyle = "rgba(255,255,255,.035)";
+  context.lineWidth = 1;
+  for (let position = 16; position < 512; position += 32) {
+    context.beginPath();
+    context.moveTo(position, 0);
+    context.lineTo(position, 512);
+    context.stroke();
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(8, 18);
+  texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+  return texture;
+}
+
+function makeLabel(parent, title, subtitle, position, size, rotationY = 0, accent = "#6feeff") {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 256;
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "rgba(4,10,17,.88)";
+  context.fillRect(6, 6, canvas.width - 12, canvas.height - 12);
+  context.strokeStyle = accent;
+  context.lineWidth = 5;
+  context.strokeRect(7, 7, canvas.width - 14, canvas.height - 14);
+  context.fillStyle = accent;
+  context.fillRect(8, 8, 18, canvas.height - 16);
+  context.fillStyle = "#eefbff";
+  context.font = "800 72px Arial";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(title, canvas.width / 2, 103);
+  context.fillStyle = "rgba(190,220,232,.78)";
+  context.font = "500 31px Arial";
+  context.letterSpacing = "6px";
+  context.fillText(subtitle, canvas.width / 2, 177);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  const material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  const label = new THREE.Mesh(new THREE.PlaneGeometry(size[0], size[1]), material);
+  label.position.set(...position);
+  label.rotation.y = rotationY;
+  parent.add(label);
+  return label;
+}
+
+function setInstance(mesh, index, position, scale = [1, 1, 1], rotation = [0, 0, 0]) {
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation));
+  matrix.compose(new THREE.Vector3(...position), quaternion, new THREE.Vector3(...scale));
+  mesh.setMatrixAt(index, matrix);
+}
+
+function createShell(world) {
+  const floor = addBox(world, [68, 0.5, 150], [0, -0.25, -5], mats.floor, [0, 0, 0], false);
+  walkableSurfaces.push(floor);
+  addBox(world, [67.2, 0.08, 148], [0, 0.045, -5], mats.floorGrid, [0, 0, 0], false);
+  addBox(world, [68, 0.45, 150], [0, 17.2, -5], mats.ceiling, [0, 0, 0], false);
+  addBox(world, [0.9, 17, 150], [-33.55, 8.5, -5], mats.wall, [0, 0, 0], false);
+  addBox(world, [0.9, 17, 150], [33.55, 8.5, -5], mats.wall, [0, 0, 0], false);
+  addBox(world, [68, 17, 0.9], [0, 8.5, -79.55], mats.wallDark, [0, 0, 0], false);
+  addBox(world, [68, 17, 0.9], [0, 8.5, 69.55], mats.wallDark, [0, 0, 0], false);
+
+  const walkwaySegments = [
+    { length: 66.8, centerZ: 34.6 },
+    { length: 61.8, centerZ: -46.1 },
+  ];
+  for (const segment of walkwaySegments) {
+    addBox(world, [12.4, 0.08, segment.length], [0, 0.07, segment.centerZ], mats.walkway, [0, 0, 0], false);
+    addBox(world, [0.13, 0.055, segment.length], [-6.28, 0.13, segment.centerZ], mats.glow, [0, 0, 0], false);
+    addBox(world, [0.13, 0.055, segment.length], [6.28, 0.13, segment.centerZ], mats.glow, [0, 0, 0], false);
+  }
+
+  const wallRibGeometry = new THREE.BoxGeometry(0.24, 6.2, 0.42);
+  const wallRibs = new THREE.InstancedMesh(wallRibGeometry, mats.metal, 28);
+  let ribIndex = 0;
+  for (let z = 59; z >= -70; z -= 10) {
+    setInstance(wallRibs, ribIndex, [-33.02, 7.2, z]);
+    ribIndex += 1;
+    setInstance(wallRibs, ribIndex, [33.02, 7.2, z]);
+    ribIndex += 1;
+  }
+  wallRibs.instanceMatrix.needsUpdate = true;
+  wallRibs.receiveShadow = true;
+  world.add(wallRibs);
+
+  const ceilingBeamGeometry = new THREE.BoxGeometry(66.2, 0.36, 0.55);
+  const ceilingBeams = new THREE.InstancedMesh(ceilingBeamGeometry, mats.metal, 15);
+  const ceilingLightGeometry = new THREE.BoxGeometry(18, 0.08, 0.17);
+  const ceilingLights = new THREE.InstancedMesh(ceilingLightGeometry, mats.glow, 15);
+  for (let index = 0; index < 15; index += 1) {
+    const z = 65 - index * 10;
+    setInstance(ceilingBeams, index, [0, 16.55, z]);
+    setInstance(ceilingLights, index, [0, 16.32, z]);
+  }
+  ceilingBeams.instanceMatrix.needsUpdate = true;
+  ceilingLights.instanceMatrix.needsUpdate = true;
+  world.add(ceilingBeams, ceilingLights);
+}
+
+function createColumns(world) {
+  const positions = [];
+  for (let z = 56; z >= -64; z -= 20) {
+    positions.push([-26.7, z], [26.7, z]);
+  }
+  const columns = new THREE.InstancedMesh(new THREE.BoxGeometry(1.25, 14.6, 1.25), mats.column, positions.length);
+  const bases = new THREE.InstancedMesh(new THREE.BoxGeometry(2.2, 0.35, 2.2), mats.metal, positions.length);
+  const bands = new THREE.InstancedMesh(new THREE.BoxGeometry(1.52, 0.16, 1.52), mats.glow, positions.length * 2);
+  positions.forEach(([x, z], index) => {
+    setInstance(columns, index, [x, 7.3, z]);
+    setInstance(bases, index, [x, 0.18, z]);
+    setInstance(bands, index * 2, [x, 3.1, z]);
+    setInstance(bands, index * 2 + 1, [x, 11.5, z]);
+  });
+  columns.instanceMatrix.needsUpdate = true;
+  bases.instanceMatrix.needsUpdate = true;
+  bands.instanceMatrix.needsUpdate = true;
+  columns.castShadow = true;
+  columns.receiveShadow = true;
+  world.add(columns, bases, bands);
+}
+
+function createArrivalDeck(world) {
+  for (const z of [61, 54]) {
+    addBox(world, [1.1, 12.5, 1.1], [-10.2, 6.25, z], mats.column, [0, 0, 0], true);
+    addBox(world, [1.1, 12.5, 1.1], [10.2, 6.25, z], mats.column, [0, 0, 0], true);
+    addBox(world, [21.5, 1, 1.1], [0, 12.2, z], mats.column, [0, 0, 0], true);
+    addBox(world, [16, 0.12, 0.18], [0, 11.64, z - 0.58], mats.glow, [0, 0, 0], false);
+  }
+  addBox(world, [21.5, 0.28, 7.8], [0, 0.2, 57.5], mats.walkway, [0, 0, 0], false);
+  makeLabel(world, "MEDIA PEMBELAJARAN", "3D VENUE // BETA TEST", [0, 9.4, 53.38], [12.8, 2.3], 0);
+}
+
+function createModuleBay(world, side, z, index) {
+  const x = side * 27.7;
+  const facingRotation = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+  const accent = index % 2 === 0 ? "#6feeff" : "#9a82ff";
+  const accentHex = index % 2 === 0 ? 0x6feeff : 0x9a82ff;
+  addBox(world, [9.5, 0.3, 10.8], [x, 0.15, z], mats.platform, [0, 0, 0], false);
+  addBox(world, [5.3, 0.55, 0.55], [side * 30.2, 7.8, z - 4.75], mats.column, [0, 0, 0], false);
+  addBox(world, [5.3, 0.55, 0.55], [side * 30.2, 7.8, z + 4.75], mats.column, [0, 0, 0], false);
+  addBox(world, [0.5, 7.7, 0.55], [side * 27.55, 3.85, z - 4.75], mats.column, [0, 0, 0], false);
+  addBox(world, [0.5, 7.7, 0.55], [side * 27.55, 3.85, z + 4.75], mats.column, [0, 0, 0], false);
+  addBox(world, [0.12, 5.8, 0.18], [side * 27.25, 4, z - 4.72], mats.glow, [0, 0, 0], false);
+  addBox(world, [0.12, 5.8, 0.18], [side * 27.25, 4, z + 4.72], mats.glow, [0, 0, 0], false);
+
+  const slotNumber = String(index + 1).padStart(2, "0");
+  makeLabel(
+    world,
+    `MODULE SLOT ${slotNumber}`,
+    "READY FOR CONTENT",
+    [side * 32.12, 5.7, z],
+    [6.6, 1.65],
+    facingRotation,
+    accent,
+  );
+
+  const pedestal = addBox(world, [2.2, 0.9, 2.2], [x, 0.48, z], mats.pedestal, [0, 0, 0], true);
+  pedestal.userData.moduleIndex = index;
+  const geometry = new THREE.OctahedronGeometry(0.82, 0);
+  const wireframe = new THREE.LineSegments(
+    new THREE.EdgesGeometry(geometry),
+    new THREE.LineBasicMaterial({ color: accentHex, transparent: true, opacity: 0.48 }),
+  );
+  wireframe.position.set(x, 2.25, z);
+  world.add(wireframe);
+
+  const energyRingMaterial = new THREE.MeshBasicMaterial({
+    color: accentHex,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  const energyRing = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.045, 8, 36), energyRingMaterial);
+  energyRing.position.set(x, 2.25, z);
+  energyRing.rotation.y = facingRotation;
+  world.add(energyRing);
+
+  const energyBeamMaterial = new THREE.MeshBasicMaterial({
+    color: accentHex,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  });
+  const energyBeam = addCylinder(world, [0.56, 0.9], 3.2, [x, 2.05, z], energyBeamMaterial, 16, [0, 0, 0], false);
+
+  interactables.push({
+    type: "module",
+    name: `MODULE ${slotNumber}`,
+    activateLabel: `AKTIFKAN MODUL ${slotNumber}`,
+    deactivateLabel: `MATIKAN MODUL ${slotNumber}`,
+    position: new THREE.Vector3(x, 1, z),
+    radius: 6.1,
+    active: false,
+    progress: 0,
+    focus: 0,
+    object: wireframe,
+    ring: energyRing,
+    beam: energyBeam,
+    baseY: 2.25,
+    phase: index * 0.83,
+    direction: side,
+  });
+}
+
+function createModuleWing(world) {
+  const moduleZ = [34, 10, -28, -52];
+  let index = 0;
+  for (const z of moduleZ) {
+    createModuleBay(world, -1, z, index);
+    index += 1;
+    createModuleBay(world, 1, z, index);
+    index += 1;
+  }
+}
+
+function createHologramParticles(world) {
+  const count = isCoarsePointer || lowPowerDevice ? 64 : 130;
+  const positions = new Float32Array(count * 3);
+  for (let index = 0; index < count; index += 1) {
+    const angle = index * 2.399963;
+    const radius = 0.8 + (index % 17) * 0.16;
+    positions[index * 3] = Math.cos(angle) * radius;
+    positions[index * 3 + 1] = 1.2 + (index % 29) * 0.19;
+    positions[index * 3 + 2] = Math.sin(angle) * radius;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  const material = new THREE.PointsMaterial({
+    color: LIGHT_MODES[modeIndex].accent,
+    size: 0.065,
+    transparent: true,
+    opacity: 0.65,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  dynamicFlatMaterials.push(material);
+  const points = new THREE.Points(geometry, material);
+  points.position.z = STAGE_CENTER_Z;
+  world.add(points);
+  return points;
+}
+
+function createLearningCore(world) {
+  const platform = addCylinder(world, [7, 7.5], 0.55, [0, 0.275, STAGE_CENTER_Z], mats.stage, 48, [0, 0, 0], true);
+  walkableSurfaces.push(platform);
+  const inset = addCylinder(world, [5.7, 5.7], 0.08, [0, 0.59, STAGE_CENTER_Z], mats.platform, 48, [0, 0, 0], false);
+  walkableSurfaces.push(inset);
+
+  const edgeRing = new THREE.Mesh(new THREE.TorusGeometry(6.6, 0.085, 8, 64), mats.glow);
+  edgeRing.rotation.x = Math.PI / 2;
+  edgeRing.position.set(0, 0.62, STAGE_CENTER_Z);
+  world.add(edgeRing);
+
+  const coreMaterial = new THREE.MeshBasicMaterial({
+    color: LIGHT_MODES[modeIndex].accent,
+    transparent: true,
+    opacity: 0.1,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  });
+  dynamicFlatMaterials.push(coreMaterial);
+  const energyColumn = addCylinder(world, [1.5, 2.5], 8, [0, 4.6, STAGE_CENTER_Z], coreMaterial, 32, [0, 0, 0], false);
+
+  const rings = [];
+  for (let index = 0; index < 3; index += 1) {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.2 + index * 0.72, 0.055, 8, 48), accentBasicMaterial({ transparent: true, opacity: 0.42 }));
+    ring.position.set(0, 2.35 + index * 1.75, STAGE_CENTER_Z);
+    ring.rotation.set(Math.PI / 2 + index * 0.28, index * 0.42, 0);
+    world.add(ring);
+    rings.push(ring);
+  }
+
+  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.15, 1), accentMaterial(2.8, { wireframe: true }));
+  core.position.set(0, 5.1, STAGE_CENTER_Z);
+  world.add(core);
+
+  const coreHalo = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.75, 2),
+    accentBasicMaterial({ wireframe: true, transparent: true, opacity: 0 }),
+  );
+  coreHalo.position.copy(core.position);
+  world.add(coreHalo);
+  const particles = createHologramParticles(world);
+
+  for (const angle of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) {
+    const x = Math.sin(angle) * 5.2;
+    const z = STAGE_CENTER_Z + Math.cos(angle) * 5.2;
+    addBox(world, [1.1, 1.65, 1.1], [x, 1.15, z], mats.pedestal, [0, angle, 0], true);
+    addBox(world, [0.62, 0.08, 0.62], [x, 2, z], mats.glow, [0, angle, 0], false);
+  }
+
+  interactables.push({
+    type: "core",
+    name: "LEARNING CORE",
+    activateLabel: "AKTIFKAN LEARNING CORE",
+    deactivateLabel: "STABILKAN LEARNING CORE",
+    position: new THREE.Vector3(0, 1, STAGE_CENTER_Z),
+    radius: 9.5,
+    active: false,
+    progress: 0,
+    focus: 0,
+    rings,
+    object: core,
+    halo: coreHalo,
+    particles,
+    column: energyColumn,
+    baseY: 5.1,
+  });
+}
+
+function createCoreChamber(world) {
+  addBox(world, [24, 0.5, 8], [0, 0.25, -72.5], mats.platform, [0, 0, 0], false);
+  addBox(world, [1.4, 14.5, 2], [-11.5, 7.25, -76.8], mats.column, [0, 0, 0], true);
+  addBox(world, [1.4, 14.5, 2], [11.5, 7.25, -76.8], mats.column, [0, 0, 0], true);
+  addBox(world, [24.5, 1.25, 2], [0, 14.1, -76.8], mats.column, [0, 0, 0], true);
+  const portalMaterial = mats.portalGlass.clone();
+  const portal = addBox(world, [20.2, 8.4, 0.15], [0, 6.1, -78.92], portalMaterial, [0, 0, 0], false);
+  addBox(world, [0.18, 10.4, 0.12], [-9.4, 6.1, -78.74], mats.glow, [0, 0, 0], false);
+  addBox(world, [0.18, 10.4, 0.12], [9.4, 6.1, -78.74], mats.glow, [0, 0, 0], false);
+  addBox(world, [18.8, 0.16, 0.12], [0, 11.2, -78.74], mats.glow, [0, 0, 0], false);
+  makeLabel(world, "CORE CHAMBER", "FUTURE EXPANSION GATE", [0, 7.1, -78.57], [12.2, 2.65], 0);
+
+  const scannerMaterial = accentBasicMaterial({
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const scanner = addBox(world, [18.1, 0.08, 0.1], [0, 1.9, -78.65], scannerMaterial, [0, 0, 0], false);
+  const portalLight = new THREE.PointLight(LIGHT_MODES[modeIndex].accent, 0, 22, 2);
+  portalLight.position.set(0, 5.5, -76.4);
+  world.add(portalLight);
+
+  interactables.push({
+    type: "portal",
+    name: "CORE CHAMBER",
+    activateLabel: "BUKA CORE CHAMBER",
+    deactivateLabel: "TUTUP CORE CHAMBER",
+    position: new THREE.Vector3(0, 1, -72.5),
+    radius: 9.2,
+    active: false,
+    progress: 0,
+    focus: 0,
+    portal,
+    scanner,
+    light: portalLight,
+  });
+}
+
+function createGuidanceMarkers(world) {
+  const markerZ = [47, 35, 23, 11, -25, -37, -49, -61];
+  const markerGeometry = new THREE.BoxGeometry(0.65, 0.025, 2.4);
+  const markers = new THREE.InstancedMesh(markerGeometry, mats.guide, markerZ.length * 2);
+  let index = 0;
+  for (const z of markerZ) {
+    setInstance(markers, index, [-3, 0.185, z]);
+    index += 1;
+    setInstance(markers, index, [3, 0.185, z]);
+    index += 1;
+  }
+  markers.instanceMatrix.needsUpdate = true;
+  world.add(markers);
+}
+
+function createVenue() {
+  const world = new THREE.Group();
+  world.name = "Media Pembelajaran Futuristic Indoor Venue";
+  scene.add(world);
+  createShell(world);
+  createColumns(world);
+  createArrivalDeck(world);
+  createModuleWing(world);
+  createLearningCore(world);
+  createCoreChamber(world);
+  createGuidanceMarkers(world);
+}
+
+function createMaterials() {
+  const floorTexture = makeFloorTexture();
+  return {
+    floor: standardMaterial(0x0b111a, 0.86, 0.22),
+    floorGrid: standardMaterial(0xffffff, 0.48, 0.25, { map: floorTexture }),
+    walkway: new THREE.MeshPhysicalMaterial({ color: 0x182633, roughness: 0.26, metalness: 0.42, clearcoat: 0.42, clearcoatRoughness: 0.34 }),
+    platform: standardMaterial(0x16212c, 0.42, 0.38),
+    stage: standardMaterial(0x111a24, 0.36, 0.5),
+    wall: standardMaterial(0x0b121d, 0.7, 0.35),
+    wallDark: standardMaterial(0x050a12, 0.82, 0.3),
+    ceiling: standardMaterial(0x080d14, 0.75, 0.32),
+    column: standardMaterial(0x172430, 0.42, 0.58),
+    metal: standardMaterial(0x263541, 0.32, 0.72),
+    pedestal: standardMaterial(0x1b2835, 0.3, 0.55),
+    portalGlass: new THREE.MeshPhysicalMaterial({
+      color: 0x163448,
+      roughness: 0.18,
+      metalness: 0.12,
+      transparent: true,
+      opacity: 0.72,
+      clearcoat: 0.5,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    }),
+    glow: accentMaterial(2.35),
+    guide: accentMaterial(1.55, { transparent: true, opacity: 0.74 }),
+  };
+}
+
+function createLighting() {
+  ambientLight = new THREE.AmbientLight(0x8cb2ca, LIGHT_MODES[0].ambient);
+  hemisphereLight = new THREE.HemisphereLight(0x8fd4eb, 0x05070b, 0.48);
+  scene.add(ambientLight, hemisphereLight);
+
+  keyLight = new THREE.DirectionalLight(0xb8efff, LIGHT_MODES[0].key);
+  keyLight.position.set(-18, 14.8, 46);
+  keyLight.target.position.set(0, 1, -16);
+  keyLight.castShadow = enableShadows;
+  const shadowSize = isCoarsePointer ? 768 : lowPowerDevice ? 1024 : 1536;
+  keyLight.shadow.mapSize.set(shadowSize, shadowSize);
+  keyLight.shadow.camera.left = -38;
+  keyLight.shadow.camera.right = 38;
+  keyLight.shadow.camera.top = 70;
+  keyLight.shadow.camera.bottom = -76;
+  keyLight.shadow.camera.near = 1;
+  keyLight.shadow.camera.far = 135;
+  keyLight.shadow.bias = -0.0002;
+  keyLight.shadow.normalBias = 0.03;
+  scene.add(keyLight, keyLight.target);
+
+  for (const z of [49, 17, -27, -61]) {
+    const light = new THREE.PointLight(LIGHT_MODES[0].accent, LIGHT_MODES[0].practical, 27, 2);
+    light.position.set(0, 12.8, z);
+    scene.add(light);
+    practicalLights.push(light);
+  }
+}
+
+function applyLightMode(nextIndex, notify = true) {
+  modeIndex = nextIndex % LIGHT_MODES.length;
+  const mode = LIGHT_MODES[modeIndex];
+  scene.background.setHex(mode.background);
+  scene.fog.color.setHex(mode.fog);
+  ambientLight.intensity = mode.ambient;
+  keyLight.intensity = mode.key;
+  keyLight.color.setHex(mode.accent);
+  hemisphereLight.color.setHex(mode.accent);
+  practicalLights.forEach((light) => {
+    light.color.setHex(mode.accent);
+    light.intensity = mode.practical;
+  });
+  dynamicAccentMaterials.forEach(({ material, intensity }) => {
+    material.color.setHex(mode.accent);
+    material.emissive.setHex(mode.accent);
+    material.emissiveIntensity = intensity * mode.glow;
+  });
+  dynamicFlatMaterials.forEach((material) => material.color.setHex(mode.accent));
+  interactables.forEach((item) => {
+    if (item.light) item.light.color.setHex(mode.accent);
+  });
+  document.documentElement.style.setProperty("--aqua", mode.css);
+  document.documentElement.style.setProperty("--aqua-rgb", hexToRgb(mode.css));
+  ui.lightingName.textContent = mode.name;
+  renderer.shadowMap.needsUpdate = true;
+  if (notify) showToast(`LIGHT MODE // ${mode.name}`);
+}
+
+function canOccupy(x, z) {
+  return (
+    x - PLAYER_RADIUS >= WORLD_LIMITS.minX &&
+    x + PLAYER_RADIUS <= WORLD_LIMITS.maxX &&
+    z - PLAYER_RADIUS >= WORLD_LIMITS.minZ &&
+    z + PLAYER_RADIUS <= WORLD_LIMITS.maxZ
+  );
+}
+
+function moveRigBy(dx, dz) {
+  const nextX = rig.position.x + dx;
+  if (canOccupy(nextX, rig.position.z)) rig.position.x = nextX;
+  else velocity.x = 0;
+  const nextZ = rig.position.z + dz;
+  if (canOccupy(rig.position.x, nextZ)) rig.position.z = nextZ;
+  else velocity.z = 0;
+}
+
+function getFloorHeight(x, z) {
+  const distance = Math.hypot(x, z - STAGE_CENTER_Z);
+  return distance < 6.8 ? 0.6 : 0;
+}
+
+function updateFloorHeight(delta) {
+  const targetHeight = getFloorHeight(rig.position.x, rig.position.z);
+  rig.position.y = THREE.MathUtils.lerp(rig.position.y, targetHeight, 1 - Math.exp(-11 * delta));
+}
+
+function launchExperience() {
+  if (!launched) {
+    launched = true;
+    document.body.classList.add("launched");
+    ui.entry.classList.add("hidden");
+    ui.systemLabel.textContent = "EXPLORATION ACTIVE";
+  }
+  if (!isCoarsePointer && !renderer.xr.isPresenting) renderer.domElement.requestPointerLock?.();
+}
+
+function resetPosition(notify = true) {
+  rig.position.copy(SPAWN);
+  rig.rotation.set(0, 0, 0);
+  camera.position.set(0, EYE_HEIGHT, 0);
+  yaw = 0;
+  pitch = -0.035;
+  camera.rotation.set(pitch, yaw, 0, "YXZ");
+  velocity.set(0, 0, 0);
+  if (notify) showToast("RETURNED // ARRIVAL DECK");
+}
+
+function updateDesktopMovement(delta) {
+  if (!launched || renderer.xr.isPresenting || ui.helpDialog.open) return;
+  camera.rotation.set(pitch, yaw, 0, "YXZ");
+  camera.updateMatrixWorld(true);
+
+  let strafe = 0;
+  let forward = 0;
+  if (keys.has("KeyW") || keys.has("ArrowUp")) forward += 1;
+  if (keys.has("KeyS") || keys.has("ArrowDown")) forward -= 1;
+  if (keys.has("KeyD") || keys.has("ArrowRight")) strafe += 1;
+  if (keys.has("KeyA") || keys.has("ArrowLeft")) strafe -= 1;
+  strafe += touchState.joyX;
+  forward += -touchState.joyY;
+
+  const inputLength = Math.hypot(strafe, forward);
+  if (inputLength > 1) {
+    strafe /= inputLength;
+    forward /= inputLength;
+  }
+
+  camera.getWorldDirection(forwardVector);
+  forwardVector.y = 0;
+  if (forwardVector.lengthSq() < 0.0001) forwardVector.set(0, 0, -1);
+  else forwardVector.normalize();
+  rightVector.crossVectors(forwardVector, upVector).normalize();
+
+  const sprinting = keys.has("ShiftLeft") || keys.has("ShiftRight");
+  const speed = sprinting ? 7.6 : 4.5;
+  desiredVelocity.set(0, 0, 0)
+    .addScaledVector(forwardVector, forward * speed)
+    .addScaledVector(rightVector, strafe * speed);
+  velocity.lerp(desiredVelocity, 1 - Math.exp(-12 * delta));
+  moveRigBy(velocity.x * delta, velocity.z * delta);
+
+  const moving = velocity.lengthSq() > 0.1;
+  if (moving) walkPhase += delta * Math.min(velocity.length() * 1.4, 9);
+  camera.position.y = EYE_HEIGHT + (moving && !reduceMotion ? Math.sin(walkPhase) * 0.014 : 0);
+}
+
+function rotateRigAroundHead(angle) {
+  camera.getWorldPosition(tempVector);
+  rig.rotation.y += angle;
+  camera.getWorldPosition(tempVector2);
+  rig.position.x += tempVector.x - tempVector2.x;
+  rig.position.z += tempVector.z - tempVector2.z;
+}
+
+function updateVRMovement(delta) {
+  const session = renderer.xr.getSession();
+  if (!session) return;
+  const xrCamera = renderer.xr.getCamera(camera);
+  xrCamera.getWorldDirection(forwardVector);
+  forwardVector.y = 0;
+  forwardVector.normalize();
+  rightVector.crossVectors(forwardVector, upVector).normalize();
+
+  for (const source of session.inputSources) {
+    if (!source.gamepad) continue;
+    const axes = source.gamepad.axes;
+    const offset = axes.length >= 4 ? 2 : 0;
+    const x = Math.abs(axes[offset] || 0) > 0.15 ? axes[offset] : 0;
+    const y = Math.abs(axes[offset + 1] || 0) > 0.15 ? axes[offset + 1] : 0;
+    if (source.handedness !== "right") {
+      movementVector.set(0, 0, 0)
+        .addScaledVector(rightVector, x * delta * 3.4)
+        .addScaledVector(forwardVector, -y * delta * 3.4);
+      moveRigBy(movementVector.x, movementVector.z);
+    } else if (Math.abs(x) > 0.72 && snapReady) {
+      rotateRigAroundHead(x > 0 ? -Math.PI / 6 : Math.PI / 6);
+      snapReady = false;
+    } else if (Math.abs(x) < 0.28) {
+      snapReady = true;
+    }
+  }
+}
+
+function updateLocation(delta) {
+  locationTimer += delta;
+  if (locationTimer < 0.12) return;
+  locationTimer = 0;
+  const { x, z } = rig.position;
+  let index = "01";
+  let zone = "ARRIVAL DECK";
+  if (z < -58) {
+    index = "06";
+    zone = "CORE CHAMBER";
+  } else if (Math.hypot(x, z - STAGE_CENTER_Z) < 12) {
+    index = "04";
+    zone = "LEARNING CORE";
+  } else if (Math.abs(x) > 16) {
+    index = x < 0 ? "03" : "05";
+    zone = x < 0 ? "WEST MODULE WING" : "EAST MODULE WING";
+  } else if (z < 43) {
+    index = "02";
+    zone = "MAIN TRANSIT HALL";
+  }
+  ui.zoneIndex.textContent = index;
+  ui.zoneName.textContent = zone;
+  ui.coordinates.textContent = `X ${x >= 0 ? "+" : ""}${x.toFixed(1)} · Z ${z >= 0 ? "+" : ""}${z.toFixed(1)}`;
+}
+
+function setFocusedInteractable(item) {
+  if (focusedInteractable === item) return;
+  focusedInteractable = item;
+  ui.interactionPrompt.classList.toggle("active", Boolean(item));
+  ui.interactionPrompt.setAttribute("aria-hidden", String(!item));
+  ui.interactButton.disabled = !item;
+  if (!item) return;
+  const label = item.active ? item.deactivateLabel : item.activateLabel;
+  ui.interactionLabel.textContent = label;
+  ui.interactButton.setAttribute("aria-label", label);
+}
+
+function refreshInteractionPrompt() {
+  if (!focusedInteractable) return;
+  const current = focusedInteractable;
+  focusedInteractable = null;
+  setFocusedInteractable(current);
+}
+
+function updateInteractionFocus(delta, force = false) {
+  interactionTimer += delta;
+  if (!force && interactionTimer < 0.09) return;
+  interactionTimer = 0;
+  if (!launched || ui.helpDialog.open) {
+    setFocusedInteractable(null);
+    return;
+  }
+
+  const activeCamera = renderer.xr.isPresenting ? renderer.xr.getCamera(camera) : camera;
+  activeCamera.getWorldPosition(tempVector);
+  let nearest = null;
+  let nearestDistance = Infinity;
+  interactables.forEach((item) => {
+    const distance = Math.hypot(tempVector.x - item.position.x, tempVector.z - item.position.z);
+    if (distance <= item.radius && distance < nearestDistance) {
+      nearest = item;
+      nearestDistance = distance;
+    }
+  });
+  setFocusedInteractable(nearest);
+}
+
+function triggerInteraction() {
+  if (!launched || !focusedInteractable) return false;
+  const item = focusedInteractable;
+  item.active = !item.active;
+  refreshInteractionPrompt();
+
+  const states = {
+    module: item.active ? "ONLINE" : "STANDBY",
+    core: item.active ? "ENERGY SURGE ACTIVE" : "CORE STABILIZED",
+    portal: item.active ? "GATE OPENING SEQUENCE" : "GATE SEALED",
+  };
+  showToast(`${item.name} // ${states[item.type]}`);
+  return true;
+}
+
+function animateWorld(elapsed, delta) {
+  const transition = 1 - Math.exp(-5.5 * delta);
+  interactables.forEach((item) => {
+    item.progress = THREE.MathUtils.lerp(item.progress, item.active ? 1 : 0, transition);
+    item.focus = THREE.MathUtils.lerp(item.focus, focusedInteractable === item ? 1 : 0, 1 - Math.exp(-9 * delta));
+    const progress = item.progress;
+    const focus = item.focus;
+    const pulse = reduceMotion ? 0 : Math.sin(elapsed * 4.2 + (item.phase || 0));
+
+    if (item.type === "module") {
+      const rotationSpeed = reduceMotion ? 0.08 : 0.32 + progress * 2.15;
+      item.object.rotation.y += item.direction * rotationSpeed * delta;
+      item.object.rotation.x += item.direction * progress * delta * 0.42;
+      item.object.position.y = item.baseY + (reduceMotion ? 0 : Math.sin(elapsed * (1.25 + progress) + item.phase) * (0.08 + progress * 0.2));
+      const objectScale = 1 + progress * 0.42 + pulse * progress * 0.035;
+      item.object.scale.setScalar(objectScale);
+      item.object.material.opacity = 0.48 + progress * 0.48;
+
+      item.ring.rotation.z += item.direction * delta * (0.25 + progress * 1.8);
+      const ringScale = 0.78 + progress * 0.32 + focus * 0.08 + pulse * progress * 0.05;
+      item.ring.scale.setScalar(ringScale);
+      item.ring.material.opacity = Math.max(focus * (0.16 + (pulse + 1) * 0.035), progress * (0.62 + pulse * 0.18));
+      item.beam.material.opacity = focus * 0.014 + progress * (0.07 + (pulse + 1) * 0.018);
+      item.beam.scale.y = 0.35 + progress * 0.65;
+      return;
+    }
+
+    if (item.type === "core") {
+      item.rings.forEach((ring, index) => {
+        const direction = index % 2 ? -1 : 1;
+        ring.rotation.y += direction * delta * (0.18 + progress * 1.05);
+        ring.rotation.z += direction * delta * (0.08 + progress * 0.5);
+        ring.position.y = 2.35 + index * 1.75 + (reduceMotion ? 0 : Math.sin(elapsed * 1.4 + index * 1.7) * (0.045 + progress * 0.1));
+        ring.material.opacity = 0.42 + progress * 0.46;
+      });
+      item.object.rotation.y += delta * (reduceMotion ? 0.08 : 0.18 + progress * 1.55);
+      item.object.rotation.x += delta * progress * 0.34;
+      item.object.position.y = item.baseY + (reduceMotion ? 0 : Math.sin(elapsed * (1.3 + progress)) * (0.12 + progress * 0.17));
+      const coreScale = 1 + progress * 0.4 + pulse * progress * 0.045;
+      item.object.scale.setScalar(coreScale);
+      item.object.material.emissiveIntensity = 2.8 * LIGHT_MODES[modeIndex].glow * (1 + progress * 0.7);
+
+      item.halo.rotation.y -= delta * (0.1 + progress * 0.75);
+      item.halo.rotation.z += delta * progress * 0.48;
+      item.halo.position.copy(item.object.position);
+      item.halo.scale.setScalar(0.82 + progress * 0.36 + pulse * progress * 0.08);
+      item.halo.material.opacity = Math.max(focus * 0.09, progress * (0.22 + (pulse + 1) * 0.06));
+      item.particles.rotation.y += delta * (0.06 + progress * 0.62);
+      item.particles.scale.setScalar(0.9 + progress * 0.22);
+      item.particles.material.opacity = 0.42 + progress * 0.45;
+      item.column.material.opacity = 0.07 + progress * (0.13 + (pulse + 1) * 0.025);
+      return;
+    }
+
+    if (item.type === "portal") {
+      const mode = LIGHT_MODES[modeIndex];
+      item.portal.material.emissive.setHex(mode.accent);
+      item.portal.material.emissiveIntensity = progress * 1.35;
+      item.portal.material.opacity = 0.52 + progress * 0.32;
+      item.scanner.position.y = 1.9 + ((elapsed * (0.16 + progress * 0.46)) % 1) * 8.45;
+      item.scanner.material.opacity = Math.max(focus * 0.12, progress * (0.58 + (pulse + 1) * 0.1));
+      item.light.intensity = focus * 0.28 + progress * (4.6 + (pulse + 1) * 0.35);
+    }
+  });
+}
+
+function createControllers() {
+  const rayGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -8)]);
+  for (let index = 0; index < 2; index += 1) {
+    const controller = renderer.xr.getController(index);
+    controller.add(new THREE.Line(rayGeometry, new THREE.LineBasicMaterial({ color: 0x6feeff, transparent: true, opacity: 0.78 })));
+    controller.addEventListener("selectstart", () => {
+      updateInteractionFocus(1, true);
+      if (!triggerInteraction()) teleportFromController(controller);
+    });
+    rig.add(controller);
+  }
+}
+
+function teleportFromController(controller) {
+  if (!renderer.xr.isPresenting || !walkableSurfaces.length) return;
+  tempMatrix.identity().extractRotation(controller.matrixWorld);
+  raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+  raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix).normalize();
+  const hit = raycaster.intersectObjects(walkableSurfaces, false)[0];
+  if (!hit || !canOccupy(hit.point.x, hit.point.z)) return;
+  camera.getWorldPosition(tempVector);
+  rig.position.x += hit.point.x - tempVector.x;
+  rig.position.z += hit.point.z - tempVector.z;
+}
+
+function bindPointerControls() {
+  document.addEventListener("pointerlockchange", () => {
+    const active = document.pointerLockElement === renderer.domElement;
+    document.body.classList.toggle("pointer-active", active);
+    ui.systemLabel.textContent = renderer.xr.isPresenting ? "XR SESSION ACTIVE" : active ? "EXPLORATION ACTIVE" : "CLICK TO LOOK";
+    if (!active) keys.clear();
+  });
+
+  document.addEventListener("mousemove", (event) => {
+    if (document.pointerLockElement !== renderer.domElement || renderer.xr.isPresenting) return;
+    yaw -= event.movementX * 0.00165;
+    pitch -= event.movementY * 0.00145;
+    pitch = THREE.MathUtils.clamp(pitch, -Math.PI * 0.47, Math.PI * 0.47);
+  });
+
+  renderer.domElement.addEventListener("click", () => {
+    if (launched && !isCoarsePointer && !renderer.xr.isPresenting && !ui.helpDialog.open) {
+      renderer.domElement.requestPointerLock?.();
+    }
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) event.preventDefault();
+    keys.add(event.code);
+    if (event.repeat) return;
+    if (event.code === "KeyR") resetPosition();
+    if (event.code === "KeyL") applyLightMode(modeIndex + 1);
+    if (event.code === "KeyH") openHelp();
+    if (event.code === "KeyE") triggerInteraction();
+  });
+  window.addEventListener("keyup", (event) => keys.delete(event.code));
+  window.addEventListener("blur", () => keys.clear());
+}
+
+function bindTouchControls() {
+  function updateJoystick(event) {
+    const rect = ui.joystick.getBoundingClientRect();
+    const radius = rect.width * 0.3;
+    let dx = event.clientX - (rect.left + rect.width / 2);
+    let dy = event.clientY - (rect.top + rect.height / 2);
+    const distance = Math.hypot(dx, dy);
+    if (distance > radius) {
+      dx = dx / distance * radius;
+      dy = dy / distance * radius;
+    }
+    touchState.joyX = dx / radius;
+    touchState.joyY = dy / radius;
+    ui.joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+  }
+
+  function releaseJoystick(event) {
+    if (event.pointerId !== touchState.joystickId) return;
+    touchState.joystickId = null;
+    touchState.joyX = 0;
+    touchState.joyY = 0;
+    ui.joystickKnob.style.transform = "translate(0, 0)";
+    ui.joystick.classList.remove("active");
+  }
+
+  ui.joystick.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    touchState.joystickId = event.pointerId;
+    ui.joystick.setPointerCapture(event.pointerId);
+    ui.joystick.classList.add("active");
+    updateJoystick(event);
+  });
+  ui.joystick.addEventListener("pointermove", (event) => {
+    if (event.pointerId === touchState.joystickId) updateJoystick(event);
+  });
+  ui.joystick.addEventListener("pointerup", releaseJoystick);
+  ui.joystick.addEventListener("pointercancel", releaseJoystick);
+
+  ui.lookZone.addEventListener("pointerdown", (event) => {
+    touchState.lookId = event.pointerId;
+    touchState.lookX = event.clientX;
+    touchState.lookY = event.clientY;
+    ui.lookZone.setPointerCapture(event.pointerId);
+  });
+  ui.lookZone.addEventListener("pointermove", (event) => {
+    if (event.pointerId !== touchState.lookId) return;
+    const dx = event.clientX - touchState.lookX;
+    const dy = event.clientY - touchState.lookY;
+    yaw -= dx * 0.005;
+    pitch -= dy * 0.0043;
+    pitch = THREE.MathUtils.clamp(pitch, -Math.PI * 0.45, Math.PI * 0.45);
+    touchState.lookX = event.clientX;
+    touchState.lookY = event.clientY;
+  });
+  const releaseLook = (event) => {
+    if (event.pointerId === touchState.lookId) touchState.lookId = null;
+  };
+  ui.lookZone.addEventListener("pointerup", releaseLook);
+  ui.lookZone.addEventListener("pointercancel", releaseLook);
+}
+
+function openHelp() {
+  if (document.pointerLockElement) document.exitPointerLock();
+  setFocusedInteractable(null);
+  if (!ui.helpDialog.open) ui.helpDialog.showModal();
+}
+
+function bindInterface() {
+  ui.enter.addEventListener("click", launchExperience);
+  ui.interactButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    triggerInteraction();
+  });
+  ui.lightingButton.addEventListener("click", () => applyLightMode(modeIndex + 1));
+  ui.resetButton.addEventListener("click", () => resetPosition());
+  ui.helpButton.addEventListener("click", openHelp);
+  ui.closeHelp.addEventListener("click", () => ui.helpDialog.close());
+  ui.helpDialog.addEventListener("click", (event) => {
+    if (event.target === ui.helpDialog) ui.helpDialog.close();
+  });
+  ui.fullscreenButton.addEventListener("click", async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {
+      showToast("FULLSCREEN NOT AVAILABLE");
+    }
+  });
+  window.addEventListener("resize", () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setPixelRatio(Math.min(devicePixelRatio, pixelRatioLimit));
+    renderer.setSize(innerWidth, innerHeight);
+  });
+}
+
+function setupXR() {
+  renderer.xr.enabled = true;
+  renderer.xr.setReferenceSpaceType("local-floor");
+  const vrButton = VRButton.createButton(renderer);
+  vrButton.id = "vr-entry";
+  vrButton.title = "Masuk ke Media Pembelajaran 3D melalui headset VR";
+  ui.xrSlot.appendChild(vrButton);
+  createControllers();
+
+  renderer.xr.addEventListener("sessionstart", () => {
+    launchExperience();
+    if (document.pointerLockElement) document.exitPointerLock();
+    document.body.classList.add("xr-active");
+    ui.systemLabel.textContent = "XR SESSION ACTIVE";
+    showToast("XR SESSION CONNECTED");
+  });
+  renderer.xr.addEventListener("sessionend", () => {
+    document.body.classList.remove("xr-active");
+    rig.rotation.set(0, 0, 0);
+    camera.rotation.set(pitch, yaw, 0, "YXZ");
+    ui.systemLabel.textContent = "EXPLORATION ACTIVE";
+    showToast("RETURNED TO SCREEN MODE");
+  });
+}
+
+function onFrame() {
+  const delta = Math.min(clock.getDelta(), 0.05);
+  const elapsed = clock.elapsedTime;
+  if (renderer.xr.isPresenting) updateVRMovement(delta);
+  else updateDesktopMovement(delta);
+  updateFloorHeight(delta);
+  updateLocation(delta);
+  updateInteractionFocus(delta);
+  animateWorld(elapsed, delta);
+  renderer.render(scene, camera);
+}
+
+function init() {
+  setLoad(9, "Menyalakan Media Pembelajaran 3D…");
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(LIGHT_MODES[0].background);
+  scene.fog = new THREE.FogExp2(LIGHT_MODES[0].fog, 0.0095);
+
+  camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.045, 240);
+  camera.rotation.order = "YXZ";
+  camera.position.set(0, EYE_HEIGHT, 0);
+  rig = new THREE.Group();
+  rig.position.copy(SPAWN);
+  rig.add(camera);
+  scene.add(rig);
+
+  renderer = new THREE.WebGLRenderer({
+    antialias: enableShadows,
+    powerPreference: "high-performance",
+    alpha: false,
+  });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, pixelRatioLimit));
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.02;
+  renderer.shadowMap.enabled = enableShadows;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.domElement.tabIndex = 0;
+  renderer.domElement.setAttribute("aria-label", "Venue indoor futuristik Media Pembelajaran 3D versi beta");
+  ui.scene.appendChild(renderer.domElement);
+
+  const pmremGenerator = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.035).texture;
+  pmremGenerator.dispose();
+
+  setLoad(28, "Membangun struktur venue…");
+  mats = createMaterials();
+  createLighting();
+  createVenue();
+  setLoad(76, "Mengaktifkan hologram dan sistem XR…");
+  applyLightMode(0, false);
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
+  setupXR();
+  bindPointerControls();
+  bindTouchControls();
+  bindInterface();
+  clock = new THREE.Clock();
+  renderer.setAnimationLoop(onFrame);
+
+  requestAnimationFrame(() => {
+    setLoad(100, "Media Pembelajaran 3D siap dijelajahi.");
+    ui.enter.disabled = false;
+    ui.enterLabel.textContent = "BETA TEST READY";
+    window.__MEDIA_PEMBELAJARAN_READY__ = true;
+  });
+}
+
+try {
+  init();
+} catch (error) {
+  console.error(error);
+  setLoad(100, "Venue tidak dapat dijalankan pada perangkat ini.");
+  ui.enterLabel.textContent = "WEBGL NOT AVAILABLE";
+}
+    </script>
+    <script>
+      window.setTimeout(function () {
+        if (!window.__MEDIA_PEMBELAJARAN_READY__) {
+          var note = document.getElementById("load-note");
+          if (note) note.textContent = "Venue gagal dimuat. Periksa koneksi lalu muat ulang halaman.";
+        }
+      }, 15000);
+    </script>
+  </body>
+</html>
